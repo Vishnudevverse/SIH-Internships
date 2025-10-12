@@ -19,6 +19,19 @@ CREATE TABLE IF NOT EXISTS internships (
     requiredSkills JSON
 );
 
+CREATE TABLE IF NOT EXISTS applications (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) NOT NULL,
+    internship_id VARCHAR(255) NOT NULL,
+    application_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) NOT NULL DEFAULT 'Applied',
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (internship_id) REFERENCES internships(id)
+);
+
+-- Clear existing data before inserting
+TRUNCATE TABLE internships;
+
 -- Insert sample data into internships table
 INSERT INTO internships (id, title, company, location, domain, description, requiredSkills) VALUES
 ('1', 'Frontend Developer Intern', 'Innovate Inc.', 'Remote', 'Web Dev', 'Build modern web applications using React and TypeScript. Work with a dynamic team on cutting-edge projects.', '["React", "JavaScript", "CSS", "TypeScript"]'),
@@ -29,4 +42,3 @@ INSERT INTO internships (id, title, company, location, domain, description, requ
 ('6', 'Full Stack Developer Intern', 'DevStack Pro', 'Delhi', 'Full Stack', 'Work on both frontend and backend to create complete web solutions.', '["React", "Node.js", "MongoDB", "JavaScript", "CSS"]'),
 ('7', 'DevOps Engineer Intern', 'CloudTech', 'Pune', 'DevOps', 'Manage CI/CD pipelines, containerization, and cloud infrastructure.', '["Docker", "Kubernetes", "AWS", "CI/CD"]'),
 ('8', 'Cybersecurity Analyst Intern', 'SecureNet', 'Hyderabad', 'Security', 'Identify vulnerabilities and implement security measures for enterprise systems.', '["Network Security", "Penetration Testing", "Python", "Linux"]');
-

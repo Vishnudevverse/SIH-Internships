@@ -108,6 +108,34 @@ app.get('/api/recommendations', async (c, res) => {
     }
 });
 
+// Apply for an internship
+app.post('/api/internships/:id/apply', async (c, res) => {
+    const userId = c.headers.authorization.split(' ')[1];
+    const internship_id = c.params.id;
+    const id = uuidv4();
+    try {
+        await db.query('INSERT INTO applications (id, user_id, internship_id) VALUES (?, ?, ?)', [id, userId, internship_id]);
+        res.json({ message: 'Application successful' });
+    } catch (error) {
+        res.status(500).json({ error: 'Application failed' });
+    }
+});
+
+// Get user's applications
+app.get('/api/user/applications', async (c, res) => {
+    const userId = c.headers.authorization.split(' ')[1];
+    try {
+        const [applications] = await db.query(
+            'SELECT i.title, i.company, a.application_date, a.status FROM applications a JOIN internships i ON a.internship_id = i.id WHERE a.user_id = ?',
+            [userId]
+        );
+        res.json(applications);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch applications' });
+    }
+});
+
+
 app.listen(port, () => {
     console.log(`Backend server listening at http://localhost:${port}`);
 });

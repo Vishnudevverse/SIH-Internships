@@ -59,6 +59,12 @@ export function Navbar({ isLoggedIn, userName, onLogout }: NavbarProps) {
                   All Internships
                 </Link>
                 <Link 
+                  to="/applications" 
+                  className="text-white no-underline hover:opacity-80 transition-opacity"
+                >
+                  My Applications
+                </Link>
+                <Link 
                   to="/profile" 
                   className="text-white no-underline hover:opacity-80 transition-opacity"
                 >

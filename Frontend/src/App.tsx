@@ -6,6 +6,7 @@ import { RegisterPage } from './components/pages/RegisterPage';
 import { HomePage } from './components/pages/HomePage';
 import { InternshipsPage } from './components/pages/InternshipsPage';
 import { ProfilePage } from './components/pages/ProfilePage';
+import { MyApplicationsPage } from './components/pages/MyApplicationsPage';
 import { Toaster } from './components/ui/sonner';
 
 export default function App() {
@@ -93,6 +94,16 @@ export default function App() {
             element={
               isLoggedIn ? (
                 <InternshipsPage />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+          <Route 
+            path="/applications" 
+            element={
+              isLoggedIn ? (
+                <MyApplicationsPage />
               ) : (
                 <Navigate to="/login" replace />
               )
