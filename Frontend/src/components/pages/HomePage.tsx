@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { InternshipCard } from '../InternshipCard';
+import { toast } from 'sonner@2.0.3';
 
 interface Internship {
   id: string;
@@ -19,11 +20,13 @@ interface HomePageProps {
 
 export function HomePage({ accessToken }: HomePageProps) {
   const [recommendations, setRecommendations] = useState<Internship[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     fetchRecommendations();
+    fetchWishlist();
   }, []);
 
   const fetchRecommendations = async () => {
@@ -45,6 +48,51 @@ export function HomePage({ accessToken }: HomePageProps) {
       setError('Failed to load recommendations');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWishlist = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/wishlist/ids', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const data = await response.json();
+      setWishlist(data);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  const handleWishlistToggle = async (internshipId: string, isWishlisted: boolean) => {
+    const method = isWishlisted ? 'DELETE' : 'POST';
+    const url = isWishlisted ? `http://localhost:3001/api/wishlist/${internshipId}` : 'http://localhost:3001/api/wishlist';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: isWishlisted ? null : JSON.stringify({ internship_id: internshipId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update wishlist');
+      }
+
+      if (isWishlisted) {
+        setWishlist(wishlist.filter(id => id !== internshipId));
+        toast('Removed from wishlist');
+      } else {
+        setWishlist([...wishlist, internshipId]);
+        toast('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      toast('Failed to update wishlist');
     }
   };
 
@@ -91,6 +139,7 @@ export function HomePage({ accessToken }: HomePageProps) {
             {recommendations.map((internship) => (
               <InternshipCard
                 key={internship.id}
+                id={internship.id}
                 title={internship.title}
                 company={internship.company}
                 location={internship.location}
@@ -100,6 +149,8 @@ export function HomePage({ accessToken }: HomePageProps) {
                 matchScore={internship.matchScore}
                 matchingSkills={internship.matchingSkills}
                 showRecommendation={true}
+                isWishlisted={wishlist.includes(internship.id)}
+                onWishlistToggle={handleWishlistToggle}
               />
             ))}
           </div>

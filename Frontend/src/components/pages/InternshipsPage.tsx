@@ -3,6 +3,7 @@ import { InternshipCard } from '../InternshipCard';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Search } from 'lucide-react';
+import { toast } from 'sonner@2.0.3';
 
 interface Internship {
   id: string;
@@ -17,6 +18,7 @@ interface Internship {
 export function InternshipsPage() {
   const [internships, setInternships] = useState<Internship[]>([]);
   const [filteredInternships, setFilteredInternships] = useState<Internship[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('all');
   const [domainFilter, setDomainFilter] = useState('all');
@@ -25,6 +27,7 @@ export function InternshipsPage() {
 
   useEffect(() => {
     fetchInternships();
+    fetchWishlist();
   }, []);
 
   useEffect(() => {
@@ -47,6 +50,53 @@ export function InternshipsPage() {
       setError('Failed to load internships');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWishlist = async () => {
+    const accessToken = localStorage.getItem('accessToken');
+    try {
+      const response = await fetch('http://localhost:3001/api/wishlist/ids', {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      });
+      const data = await response.json();
+      setWishlist(data);
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  const handleWishlistToggle = async (internshipId: string, isWishlisted: boolean) => {
+    const accessToken = localStorage.getItem('accessToken');
+    const method = isWishlisted ? 'DELETE' : 'POST';
+    const url = isWishlisted ? `http://localhost:3001/api/wishlist/${internshipId}` : 'http://localhost:3001/api/wishlist';
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: isWishlisted ? null : JSON.stringify({ internship_id: internshipId }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update wishlist');
+      }
+
+      if (isWishlisted) {
+        setWishlist(wishlist.filter(id => id !== internshipId));
+        toast('Removed from wishlist');
+      } else {
+        setWishlist([...wishlist, internshipId]);
+        toast('Added to wishlist');
+      }
+    } catch (error) {
+      console.error('Error updating wishlist:', error);
+      toast('Failed to update wishlist');
     }
   };
 
@@ -162,12 +212,15 @@ export function InternshipsPage() {
             {filteredInternships.map((internship) => (
               <InternshipCard
                 key={internship.id}
+                id={internship.id}
                 title={internship.title}
                 company={internship.company}
                 location={internship.location}
                 domain={internship.domain}
                 description={internship.description}
                 requiredSkills={internship.requiredSkills}
+                isWishlisted={wishlist.includes(internship.id)}
+                onWishlistToggle={handleWishlistToggle}
               />
             ))}
           </div>

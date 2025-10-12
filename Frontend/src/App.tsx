@@ -6,7 +6,7 @@ import { RegisterPage } from './components/pages/RegisterPage';
 import { HomePage } from './components/pages/HomePage';
 import { InternshipsPage } from './components/pages/InternshipsPage';
 import { ProfilePage } from './components/pages/ProfilePage';
-import { MyApplicationsPage } from './components/pages/MyApplicationsPage';
+import { MyWishlistPage } from './components/pages/MyWishlistPage';
 import { Toaster } from './components/ui/sonner';
 
 export default function App() {
@@ -100,10 +100,10 @@ export default function App() {
             } 
           />
           <Route 
-            path="/applications" 
+            path="/wishlist" 
             element={
               isLoggedIn ? (
-                <MyApplicationsPage />
+                <MyWishlistPage />
               ) : (
                 <Navigate to="/login" replace />
               )

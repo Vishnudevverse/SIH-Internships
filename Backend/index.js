@@ -108,33 +108,53 @@ app.get('/api/recommendations', async (c, res) => {
     }
 });
 
-// Apply for an internship
-app.post('/api/internships/:id/apply', async (c, res) => {
-    const userId = c.headers.authorization.split(' ')[1];
-    const internship_id = c.params.id;
+// Add to wishlist
+app.post('/api/wishlist', async (c, res) => {
+    const user_id = c.headers.authorization.split(' ')[1];
+    const { internship_id } = c.body;
     const id = uuidv4();
     try {
-        await db.query('INSERT INTO applications (id, user_id, internship_id) VALUES (?, ?, ?)', [id, userId, internship_id]);
-        res.json({ message: 'Application successful' });
+        // Use INSERT IGNORE to prevent errors on duplicate entries
+        await db.query('INSERT IGNORE INTO wishlist (id, user_id, internship_id) VALUES (?, ?, ?)', [id, user_id, internship_id]);
+        res.json({ message: 'Added to wishlist' });
     } catch (error) {
-        res.status(500).json({ error: 'Application failed' });
+        res.status(500).json({ error: 'Failed to add to wishlist' });
     }
 });
 
-// Get user's applications
-app.get('/api/user/applications', async (c, res) => {
-    const userId = c.headers.authorization.split(' ')[1];
+// Remove from wishlist
+app.delete('/api/wishlist/:internship_id', async (c, res) => {
+    const user_id = c.headers.authorization.split(' ')[1];
+    const { internship_id } = c.params;
     try {
-        const [applications] = await db.query(
-            'SELECT i.title, i.company, a.application_date, a.status FROM applications a JOIN internships i ON a.internship_id = i.id WHERE a.user_id = ?',
-            [userId]
-        );
-        res.json(applications);
+        await db.query('DELETE FROM wishlist WHERE user_id = ? AND internship_id = ?', [user_id, internship_id]);
+        res.json({ message: 'Removed from wishlist' });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch applications' });
+        res.status(500).json({ error: 'Failed to remove from wishlist' });
     }
 });
 
+// Get user's wishlist
+app.get('/api/wishlist', async (c, res) => {
+    const user_id = c.headers.authorization.split(' ')[1];
+    try {
+        const [wishlist] = await db.query('SELECT i.* FROM wishlist w JOIN internships i ON w.internship_id = i.id WHERE w.user_id = ?', [user_id]);
+        res.json(wishlist);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch wishlist' });
+    }
+});
+
+// Get user's wishlist ids
+app.get('/api/wishlist/ids', async (c, res) => {
+    const user_id = c.headers.authorization.split(' ')[1];
+    try {
+        const [wishlist] = await db.query('SELECT internship_id FROM wishlist WHERE user_id = ?', [user_id]);
+        res.json(wishlist.map(item => item.internship_id));
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch wishlist ids' });
+    }
+});
 
 app.listen(port, () => {
     console.log(`Backend server listening at http://localhost:${port}`);

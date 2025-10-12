@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "Backend for SIH Internships Web App",
+  "description": "Backend for NextStep AI Web App",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

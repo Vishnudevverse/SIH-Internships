@@ -22,7 +22,7 @@ export function Navbar({ isLoggedIn, userName, onLogout }: NavbarProps) {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="text-xl text-white no-underline hover:opacity-80">
-            SIH Internships
+            NextStep AI
           </Link>
 
           {/* Logged-out state */}
@@ -34,7 +34,7 @@ export function Navbar({ isLoggedIn, userName, onLogout }: NavbarProps) {
                 </Button>
               </Link>
               <Link to="/register">
-                <Button variant="outline" className="text-white border-white hover:bg-white hover:text-[#1a1a2e]">
+                <Button variant="ghost" className="text-white/80 hover:bg-white/10 hover:text-white">
                   Register
                 </Button>
               </Link>
@@ -59,10 +59,10 @@ export function Navbar({ isLoggedIn, userName, onLogout }: NavbarProps) {
                   All Internships
                 </Link>
                 <Link 
-                  to="/applications" 
+                  to="/wishlist" 
                   className="text-white no-underline hover:opacity-80 transition-opacity"
                 >
-                  My Applications
+                  My Wishlist
                 </Link>
                 <Link 
                   to="/profile" 
@@ -76,10 +76,10 @@ export function Navbar({ isLoggedIn, userName, onLogout }: NavbarProps) {
               <div className="flex items-center gap-4">
                 <span className="text-sm">Welcome, {userName}</span>
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm"
                   onClick={handleLogout}
-                  className="text-white border-white hover:bg-white hover:text-[#1a1a2e]"
+                  className="text-white/80 hover:bg-white/10 hover:text-white"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout

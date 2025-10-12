@@ -22,7 +22,7 @@ export function Navbar({ isLoggedIn, userName, onLogout }: NavbarProps) {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="text-xl text-white no-underline hover:opacity-80">
-            SIH Internships
+            NextStep AI
           </Link>
 
           {/* Logged-out state */}
