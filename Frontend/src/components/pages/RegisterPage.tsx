@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -5,9 +6,10 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
 import { TagInput } from '../TagInput';
+import { toast } from 'sonner@2.0.3';
 
 export function RegisterPage() {
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [skills, setSkills] = useState<string[]>([]);
@@ -21,23 +23,23 @@ export function RegisterPage() {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, email, password, skills }),
+        body: JSON.stringify({ fullName, email, password, skills: skills.join(',') }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Registration failed');
+        setError(data.message || 'Registration failed');
         setLoading(false);
         return;
       }
 
-      // Redirect to login after successful registration
+      toast('Registration successful! Please log in.');
       navigate('/login');
     } catch (err) {
       console.error('Registration error:', err);
@@ -64,12 +66,12 @@ export function RegisterPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="fullName">Full Name</Label>
               <Input
-                id="name"
+                id="fullName"
                 type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
                 placeholder="John Doe"
                 required
               />

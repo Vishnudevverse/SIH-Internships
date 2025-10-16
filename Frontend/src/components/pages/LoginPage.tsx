@@ -1,20 +1,19 @@
-import { useState } from 'react';
+
+import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { Label } from '../ui/label';
+import { AuthContext } from '../../contexts/AuthContext'; // Assuming you have an AuthContext
 
-interface LoginPageProps {
-  onLogin: (accessToken: string, userName: string) => void;
-}
-
-export function LoginPage({ onLogin }: LoginPageProps) {
+export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const auth = useContext(AuthContext);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +21,7 @@ export function LoginPage({ onLogin }: LoginPageProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,12 +32,12 @@ export function LoginPage({ onLogin }: LoginPageProps) {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || 'Login failed');
+        setError(data.message || 'Login failed');
         setLoading(false);
         return;
       }
 
-      onLogin(data.accessToken, data.userName);
+      auth.login(data.token);
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);

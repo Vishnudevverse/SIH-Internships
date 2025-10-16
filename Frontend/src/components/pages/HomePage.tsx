@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { InternshipCard } from '../InternshipCard';
 import { toast } from 'sonner@2.0.3';
+import { AuthContext } from '../../contexts/AuthContext'; // Assuming you have an AuthContext
 
 interface Internship {
   id: string;
@@ -14,26 +15,25 @@ interface Internship {
   matchingSkills: string[];
 }
 
-interface HomePageProps {
-  accessToken: string;
-}
-
-export function HomePage({ accessToken }: HomePageProps) {
+export function HomePage() {
   const [recommendations, setRecommendations] = useState<Internship[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const auth = useContext(AuthContext);
 
   useEffect(() => {
-    fetchRecommendations();
-    fetchWishlist();
-  }, []);
+    if (auth.token) {
+      fetchRecommendations();
+      fetchWishlist();
+    }
+  }, [auth.token]);
 
   const fetchRecommendations = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/recommendations', {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${auth.token}`,
         },
       });
 
@@ -55,7 +55,7 @@ export function HomePage({ accessToken }: HomePageProps) {
     try {
       const response = await fetch('http://localhost:3001/api/wishlist/ids', {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${auth.token}`,
         },
       });
       const data = await response.json();
@@ -74,7 +74,7 @@ export function HomePage({ accessToken }: HomePageProps) {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          'Authorization': `Bearer ${auth.token}`,
         },
         body: isWishlisted ? null : JSON.stringify({ internship_id: internshipId }),
       });
